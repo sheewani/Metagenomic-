@@ -1,0 +1,303 @@
+---
+title: "Metagenomic Analysis pipleline"
+author: "Sheewa"
+date: "2024-01-04"
+output: html_document
+
+---
+Ultimate Source Happy Belly Bioinformatics: https://astrobiomike.github.io/
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#### Definition of Metagenomic <br> 
+This is shotgun meta genomic. We only look at a small fraction of the samples and DNA. 
+Metagenomic answers question about whfo is there and what they are doing there. 
+
+#### Functional Annotation
+Open reading fram is from srat codon all the way to the stop codon. 
+There are two toold for gene prediction. Genemarks-2 (2018), Prodigal(2012)
+We use prodiga;: runs quickly, runs unsupervised, handles gaps, scaffolds, and partial genes.
+
+
+Dowloading one metagenomic to my computer:I downloaded my first metagenomic from NCBI, and I used fastq dump from oscar code  <br>
+
+$ fastq-dump --gzip --skip-technical --readids --read-filter pass --dumpbase --split-3 --clip --outdir path/to/reads/ SRR_ID
+
+https://rnnh.github.io/bioinfo-notebook/docs/fastq-dump.html
+
+output: I got two files with with fastq files 
+
+##### gunzip is to uncompress gz (compressed) and it will turn it to fastq file. 
+we need to uncompress the compressed file. we can use the following command line to uncompress: 
+gunzip filename.fastq.gz 
+
+in order to uncpmpress multiple file more than one we run for loop in bash
+<br> using this character in html for breaking up lines. 
+
+##### for loop for more than one metagenomci 
+```{r, eval=FALSE}
+for i in$(cat <SRR list>.txt) do ;  prefetch $i ; fastq-dump --splitfiles $i
+
+```
+#### Prefetch and FastQ-Dump
+below is a successful code I used to download the data from ncbi into to my server <br>
+```{r, echo =TRUE, eval =FALSE}
+prefetch SRR#
+```
+```{r, echo =TRUE, eval =FALSE}
+fasterq-dump SRR#
+#obviously with your own ssr # 
+``` 
+### Assembly <br>
+```{r, echo =TRUE, eval =FALSE}
+megahit -1 SRR10955009_1.fastq -2 SRR10955009_2.fastq -o SRR10955009_out 
+``` 
+
+Paper Read: https://doi.org/10.1093/bioinformatics/btv033
+
+using K meres to overlap sequences f
+
+
+##### start screen <br>
+```{r, echo =TRUE, eval =FALSE}
+# name the screen 
+
+screen -S Megahit 
+
+```
+
+```{r, echo =TRUE, eval =FALSE}
+ screen -S 
+
+```
+screen is a good feature since you can close up your computer while the command still runs 
+
+to see what is attached to the screen <br>
+
+```{r, echo =TRUE, eval =FALSE}
+screen -ls 
+  
+```
+
+to see how big is your file <br>
+```{r, echo =TRUE, eval =FALSE}
+s -lhs 
+``` 
+
+#### Statistic of fasta file (congis) N50
+Here we look at the size of each contigs which is now individuals are the full genomic which are overalped together to find the best match for each genomic data. We used <grep> funtion to count the numbers of contigs we found 
+```{r}
+
+```
+
+### Magic Lamp 
+If you dont have conda activate for magic lamp you need to go to this website and instal this. 
+```{r, echo =TRUE, eval =FALSE}
+git clone https://github.com/Arkadiy-Garber/MagicLamp.git <br>
+cd MagicLamp  
+conda create -n magiclamp -c bioconda -c conda-forge -c defaults -c astrobiomike hmmer bit --yes 
+conda activate magiclamp
+```
+
+to list all the genies that we have: <br>
+```{r, echo =TRUE, eval =FALSE}
+magiclamp.py 
+``` 
+```{r, echo =TRUE, eval =FALSE} 
+agicLamp.py LithoGenie -h (bin-dir) 
+#to get help and learn about all the genies 
+``` 
+Note:<br> MagicLamp.py LithoGeneie -bin_dir (it is a directory) the directory of the contigs after assembly.   
+
+Make a directory and transfer the contigs to the new file and use the contigs directory to the lithoGenie for MagicLamp.
+ *Bins means contigs
+MagicLamp.py LithoGeneie -bin_dir <br>
+
+
+
+MagicLamp.py LithoGenie -bin_dir /home/shiva1/one_metagenome_practice/SRR10955009_out/finalcontigs 
+-bin_ex BIN_EXT <br>
+ERROR: Looks like you did not provide an extension for your genomes/bins or assemblies, 
+so LithoGenie does not know which files in the provided directory are fasta files that you
+would like analyzed. <br>  
+MagicLamp.py LithoGenie -bin_dir /home/shiva1/one_metagenome_practice/SRR10955009_out/finalcontigs/ -bin_ext fa  
+ 
+##### Final Code to Run MagicLamp:
+
+```{r, echo =TRUE, eval =FALSE} 
+MagicLamp.py Lucifer -bin_dir /home/shiva1/one_metagenome_practice/SRR10955009_out/finalcontigs/ -bin_ext fa -out Lucifer_out --norm 
+
+MagicLamp.py Lucifer -bin_dir /data/Biocrust/2024_Clean/Assemblies2024/MegaHit2/tempTransfer -bin_ext fa -out Lucifer_out --norm
+
+<br>
+``` 
+
+### Download file from your server to your local computer/Upload from your local computer to your server  
+data from your server to your local computer ( in this case we download the heatmap putput of the lucifer)
+using comand: scp usernam@IPaddress: location of the file needs to be downloaded to the Location of 
+your computer directory
+ 
+```{r, echo =TRUE, eval =FALSE}  
+scp shiva@IPaddress:/home/shiva1/MagicLamp/Lucifer_out/lucifer.heatmap.csv 
+/Users/labuser3/Downloads 
+
+#the environment should terminal of my computer not logged into the server.
+#Note: this should be done in your home terminal, not in your server terminal 
+```
+##### Downloading from local computer to the server 
+
+```{r, eval = FALSE}
+scp /Users/labuser3/Downloads/clustalw_Aligned_picked_upSe ssh shiva@10.83.249.137:/home/shiva1/MagicLamp/Lucifer_out
+
+#I used the computer terminal environmnet
+```
+
+
+##### Transferring from your local computer to the serve: 
+It is exactly the same way life above, however, this time you will be on your server terminal and you switch the order of your command 
+
+##### How to find directory of your files: 
+basically in order to download the data, you need to find the directory of your file that you wnat to download and the directly the file on your computer needs to go in. 
+
+using *** pwd *** command 
+scp [your ssh login]:[location of file in your directory] [destination of file on your computer] 
+```{bash, echo =TRUE, eval =TRUE}
+ls #finding the contents you have, below is the lists of the content I have. and I will run pwd to find the directory (path) of my files. see below
+
+``` 
+
+```{bash, echo =TRUE, eval =TRUE}
+pwd 
+#/User/labuser3/Desktop is the directory. use /name of the file for downloading purposes  
+``` 
+
+### Nano File
+When working on the command line, quite often you will need to create or edit text files. Two of the most powerful and popular command-line editors are Vim and Emacs. Both of them have a steep learning curve that can be intimidating to new users. For those who need a simple editor, there is nano.
+
+GNU nano is an easy to use command line text editor for Unix and Linux operating systems. It includes all the basic functionality you’d expect from a regular text editor, like syntax highlighting, multiple buffers, search and replace with regular expression support, spellchecking, UTF-8 encoding, and more.
+In this guide, explain the basic usage of the nano editor, including how to create and open a file, edit a file, save a file, search and replace text, cut and paste text, and more.
+
+#### Installing Nano 
+```{r, echo =TRUE, eval =FALSE}  
+nano --version
+
+```
+This is what output might look like : 
+```{r, echo =TRUE, eval =FALSE}
+
+
+GNU nano, version 2.9.3
+(C) 1999-2011, 2013-2018 Free Software Foundation, Inc.
+(C) 2014-2018 the contributors to nano
+Email: nano@nano-editor.org	Web: https://nano-editor.org/
+``` 
+installing: 
+```{r, echo =TRUE, eval =FALSE}
+sudo apt install nano
+``` 
+creating nano file: 
+```{r, echo =TRUE, eval =FALSE}
+nano filename
+```
+nano file is a great tool whihc acts like a text editor and you can make a text file on the directory that you are in and add anything you want. 
+Here are some of the lists of the funcion of nano files for navigations and editing text, and adding text. 
+
+xAll commands are prefixed with either ^ or M character. The caret symbol (^) represents the Ctrl key. For example, the ^J commands mean to press the Ctrl and J keys at the same time. The letter M represents the Alt key.
+
+You can get a list of all commands by typing Ctrl+g.
+
+To open a file you must have read permissions to the file.<br>
+
+##### Editing Files
+Unlike vi, nano is a modeless editor, which means that you can start typing and editing the text immediately after opening the file.
+
+To move the cursor to a specific line and character number, use the Ctrl+_ command. The menu on the bottom of the screen will change. Enter the number(s) in the “Enter line number, column number:” field and hit Enter.<br>
+
+##### Searching and replacing 
+To search for a text, press Ctrl+w, type in the search term, and press Enter. The cursor will move to the first match. To move to the next match, press Alt+w.
+
+If you want to search and replace, press Ctrl+\. Enter the search term and the text to be replaced with. The editor will move to the first match and ask you whether to replace it. After hitting Y or N it will move to the next match. Pressing A will replace all matches.<br>
+
+##### Copping, cutting, and pasting
+To select text, move the cursor to the beginning of the text and press Alt+a. This will set a selection mark. Move the cursor to the end of the text you want to select using the arrow keys. The selected text will be highlighted. If you want to cancel the selection press Ctrl+6
+
+Copy the selected text to the clipboard using the Alt+6 command. Ctrl+k will cut the selected text.
+
+If you want to cut whole lines, simply move the cursor to the line and press Ctrl+k. You can cut multiple lines by hitting Ctrl+k several times.<br>
+of course you can google more about its funciton
+
+Useful Resource:
+https://linuxize.com/post/how-to-use-nano-text-editor/
+
+
+## Next Step Predicted Protein Analysis 
+This step is when the protogal has looked for open reading frame and has predicted protein espression.  
+After we are done with Magic lamp, magic lamp essentially will put out the clusters of the genes that are presicted to encode proteins. In this methods, the preexisting database has been given and these are the database of different pre identified genes that are encoding light related proteins. Based on this database, Hidden Markov model(HMM) will try to predict and look for if the assemblies we have given as our database are meeting the requirements to be counted as genes that is light related genes. If they are meeting the requirement, the algorithm give them as our output and checkd them out. Through this algorthim we are able to analyze the only genes that are unterested in based on the preexisting criteria in this algrithm. 
+
+Since in our algorithm, we still need an additional criteria to classsify the PR proteins based on Olson classification(https://www.nature.com/articles/s41396-018-0074-4) 
+
+
+
+##### Using {cut} function to select wanted fields and erase the rest 
+Here in a file "Proteorhodopsin_summary_raw_lysPos_DTE_M", which is a file with extra infomation such as sequences and the ids and more. For my statistical analysis I only need the ID and the protien sequences . so I use "cut" to select those two columns and put them in a new file. See following code: 
+
+```{r, eval =FALSE}
+cut -d "," -f 1,10 Proteorhodopsin_summary_raw_lysPos_DTE_M > ID_SRR_M.tsv
+
+```
+Unless we tell cut the delimiter is a comma, which we can do with the -d parameter, that is the reason for why we have -d in the begnning.  
+In this code, we are telling bash to pull out the info that are seperated by comma. each part that is seperated by comma is one field. So we count which columns we want. for example, here we want the field 1, and 10 so we pull out those teo columns in the existing file and putting then in a new file called ID_SRR_M.tsv which is what the sign > is menat to be used. 
+
+
+#### Converting regular file to tsv or csv file using "awk" 
+
+```{r,eval =FALSE}
+awk 'BEGIN {OFS=","} {print}' ID_SRR_M.tsv > ID_output_M.csv
+``` 
+I used the "awk" command to classify each column with name such as naoming columns with two different names with the code below: 
+```{r, eval =FALSE}
+ awk 'BEGIN {print "SRR_ID, Seq"} {print}' ID_output_M.csv >  ID_SRR_M_names.csv
+```
+### {paste} command 
+I used paste command to match two columns with each other. In general, paste works with hings together horizontally with a delimiter in between them (a tab by default).
+
+```{r,eval =FALSE}
+paste BioMoss_coun.txt BioMoss_SSRID_DTE_L_counts.txt > BioMoss_DTEL_Final1_count.txt
+
+```
+### {sed} command 
+to delete a line in a file you use sed command, see below code: 
+
+```{r, eval =FALSE}
+sed -i '5d' example.txt
+
+```
+
+In this command:
+
+-i indicates in-place editing, which means the changes are made directly to the file.<br>
+5 is the line number you want to delete.<br>
+d is the sed command to delete a line.<br>
+
+### {for loop} 
+I am using for loop here to count the numbers of repeated genes for each SRR id number for statistical purposes. see the code belowe: 
+```{r, eval=FALSE}
+for i in $(less HypoCyano_SRRID.txt); do grep -c "$i" PR_SSRID_DTE_L.csv >> PR_HypoCyano_counts.txt;done
+
+```
+The sign >> means the output will be in a new file which we have named PR_HypoCyano_counts.txt 
+here we are counting the numbers of repeated protein for ach SRR id numbers.  
+
+#### R base Analysis 
+
+I used R base analysis to find the p-value and made box plot too.  
+
+
+##### Removing write protectd direcotory 
+
+
+
+
